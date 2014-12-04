@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script data-main="js/main" src="components/requirejs/require.js"></script>
+    <style>
+        .pixel {
+            width: 50px;
+            height: 50px;
+            background-color: #333;
+        }
+        .pixel.on {
+            background-color: #DDD;
+        }
+    </style>
+    <title>Hopfield Memory Network Simulator</title>
+</head>
+<body>
+<table>
+    <button v-on="click: propagate()">Propagate</button>
+    <tr v-repeat="i : pixels.length">
+        <td v-repeat="j : pixels.length">
+            <div class="pixel" v-class="on: pixels[i][j]" v-on="click: togglePixel(i, j)"></div>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
