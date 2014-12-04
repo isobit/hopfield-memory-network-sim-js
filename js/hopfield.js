@@ -9,7 +9,7 @@ define([
     var hopfield = {};
 
     function _pad(arr, padVal, len) {
-        var newArr = arr;
+        var newArr = arr.concat();
         for (var i = arr.length; i < len; i++) {
             newArr[i] = padVal;
         }
