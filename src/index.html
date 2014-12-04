@@ -2,27 +2,37 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <!--<link rel="stylesheet" type="text/css" href="components/font-awesome/css/font-awesome.min.css">-->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <script data-main="js/main" src="components/requirejs/require.js"></script>
-    <style>
-        .pixel {
-            width: 50px;
-            height: 50px;
-            background-color: #333;
-        }
-        .pixel.on {
-            background-color: #DDD;
-        }
-    </style>
     <title>Hopfield Memory Network Simulator</title>
 </head>
 <body>
-<table>
+<section id="network">
     <button v-on="click: propagate()">Propagate</button>
-    <tr v-repeat="i : pixels.length">
-        <td v-repeat="j : pixels.length">
-            <div class="pixel" v-class="on: pixels[i][j]" v-on="click: togglePixel(i, j)"></div>
-        </td>
-    </tr>
-</table>
+    <button v-on="click: startAutoPropagate()" v-class="bg-green: autoPropagate">Auto Propagate</button>
+    <button v-on="click: memorize()" class="bg-blue">Memorize</button>
+    <button v-on="click: clear()" class="bg-red">Clear</button>
+    <table class="grid">
+        <tr v-repeat="i : pixels.length">
+            <td v-repeat="j : pixels.length">
+                <div class="pixel" v-class="on: pixels[i][j]" v-on="click: togglePixel(i, j)"></div>
+            </td>
+        </tr>
+    </table>
+</section>
+<section id="memories" class="bg-blue">
+    <!--<h1>Memories</h1>-->
+    <div class="memory" v-repeat="m: memPixels.length">
+        <table class="grid">
+            <tr v-repeat="i : memPixels[m].length">
+                <td v-repeat="j : memPixels[m].length">
+                    <div class="pixel" v-class="on: memPixels[m][i][j]"></div>
+                </td>
+            </tr>
+        </table>
+        <button class="bg-red" v-on="click: unmemorize(m)">Remove</button>
+    </div>
+</section>
 </body>
 </html>
