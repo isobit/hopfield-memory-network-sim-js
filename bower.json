@@ -1,0 +1,19 @@
+{
+  "name": "hopfield-memory-network-sim-js",
+  "version": "0.0.0",
+  "authors": [
+    "Josh Glendenning <joshglendenning@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "vue": "~0.11.3",
+    "requirejs": "~2.1.15"
+  }
+}
