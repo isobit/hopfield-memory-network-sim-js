@@ -19,6 +19,7 @@ define([
     window._pad = _pad;
 
     hopfield.Network = function(memVecs, N) {
+        window.network = this;
         this.stochastic = false;
         var n = memVecs.length;
         this.n = n;
@@ -29,7 +30,7 @@ define([
             if (mem.length > memSize) memSize = mem.length;
         });
 
-        var paddedMemVecs = memVecs.map(function(mem) {
+        var paddedMemVecs = this.Vs = memVecs.map(function(mem) {
             return _pad(mem, 0, N);
         });
 

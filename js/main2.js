@@ -20,23 +20,37 @@ define([
     "array"
 ], function(Vue, _, hopfield, array) {
 
-    var N = 100;
+    var N = 1000;
+    var memDim = 5;
 
     var initMemories = [
         [
-            0, 0, 0,
-            1, 0, 0,
-            1, 1, 0
+            1, 1, 1, 1, 1,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0
         ],
         [
-            1, 0, 0,
-            0, 1, 0,
-            0, 0, 1
+            0, 0, 0, 0, 0,
+            0, 1, 1, 1, 0,
+            0, 1, 1, 1, 0,
+            0, 1, 1, 1, 0,
+            0, 0, 0, 0, 0
         ],
         [
-            0, 1, 1,
-            0, 0, 1,
-            0, 0, 0
+            0, 0, 0, 0, 0,
+            1, 0, 0, 0, 0,
+            1, 0, 0, 0, 0,
+            1, 0, 0, 0, 0,
+            1, 1, 1, 0, 0
+        ],
+        [
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 1,
+            0, 0, 0, 0, 1,
+            0, 0, 0, 0, 1,
+            0, 0, 1, 1, 1
         ]
     ];
     var network = new hopfield.Network(initMemories, N);
@@ -45,11 +59,13 @@ define([
         el: 'body',
         data: {
             pixels: [
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0]
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]
             ],
-            memPixels: initMemories.map(function(e) {return e.eachConsecutive(3)}),
+            memPixels: initMemories.map(function(e) {return e.eachConsecutive(memDim)}),
             autoPropagate: false,
             stochastic: false
         },
@@ -61,23 +77,14 @@ define([
             },
             clear: function() {
                 for (var i = 0; i < this.pixels.length; i++) {
-                    this.pixels.$set(i, [0, 0, 0]);
+                    this.pixels.$set(i, array.zeros(memDim));
                 }
             },
             propagate: function() {
-                this.pixels = network.propagate(this.pixels.flatten()).slice(0, 9).eachConsecutive(3);
+                this.pixels = network.propagate(this.pixels.flatten()).slice(0, Math.pow(memDim, 2)).eachConsecutive(memDim);
             },
             startAutoPropagate: function() {
                 this.autoPropagate = !this.autoPropagate;
-                //if (!this.autoPropagate) {
-                //    var self = this;
-                //    this.autoPropagate = true;
-                //    setTimeout(function() {
-                //        self.autoPropagate = false;
-                //    }, 5000)
-                //} else {
-                //    this.autoPropagate = false;
-                //}
             },
             memorize: function() {
                 this.memPixels.push(this.pixels.concat());
@@ -105,6 +112,6 @@ define([
         if (vue.autoPropagate) {
             vue.propagate();
         }
-    }, 300);
+    }, 500);
 
 });
