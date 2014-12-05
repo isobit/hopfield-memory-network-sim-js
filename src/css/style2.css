@@ -1,0 +1,88 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body {
+    background-color: #222;
+    color: #fff;
+    font-family: 'Open Sans', sans-serif;
+    overflow: hidden;
+}
+a {
+    color: #428bca;
+}
+
+button {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+    margin: 1em;
+}
+
+.bg-blue {
+    background-color: #333399;
+    color: white;
+}
+
+.bg-red {
+    background-color: #993333;
+    color: white;
+}
+
+.bg-green {
+    background-color: #339933;
+    color: white;
+}
+
+.grid {
+    border-spacing: 0;
+}
+.grid td {
+    padding: 0;
+}
+
+.grid .pixel {
+    width: 25px;
+    height: 25px;
+    border: 1px solid black;
+    background-color: #444;
+}
+.grid .pixel.on {
+    background-color: #DDD;
+}
+
+section {
+    width: 100%;
+}
+
+#network {
+    text-align: center;
+}
+#network .grid {
+    margin: 0 auto;
+}
+#network .pixel {
+    width: 5em;
+    height:5em;
+}
+
+#memories {
+    position: absolute;
+    bottom: 0;
+    padding: 1em;
+    overflow: auto;
+}
+#memories .memory {
+    float: left;
+    margin: 0 2em;
+}
+
