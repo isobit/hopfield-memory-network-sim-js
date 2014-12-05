@@ -4,7 +4,7 @@
 
 define([
 ], function() {
-    var array = window.array = {
+    var array  = {
         zeros: function(x) {
             return this.fill(x, function() {return 0;})
         },
@@ -16,5 +16,19 @@ define([
             return res;
         }
     };
+    Object.defineProperty( Array.prototype, 'eachConsecutive', {
+        value:function(n){
+            var copy = this.concat(), result = [];
+            while (copy.length) result.push( copy.splice(0,n) );
+            return result;
+        }
+    });
+
+    Object.defineProperty( Array.prototype, 'flatten', {
+        value:function(n){
+            return [].concat.apply([], this)
+        }
+    });
+
     return array;
 });
