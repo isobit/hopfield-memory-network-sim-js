@@ -19,6 +19,7 @@ define([
     window._pad = _pad;
 
     hopfield.Network = function(memVecs, N) {
+        this.stochastic = false;
         var n = memVecs.length;
         this.n = n;
         this.N = N;
@@ -45,6 +46,7 @@ define([
         });
 
         this.propagate = function(V) {
+            var self = this;
             V = _pad(V, 0, N);
             return array.fill(N, function(i) {
                 var sum = 0;
@@ -53,7 +55,11 @@ define([
                         sum += T[i][j] * V[j];
                     }
                 }
-                return (sum > U[i])? 1 : 0;
+                var spike = (sum > U[i])? 1 : 0;
+                if (self.stochastic) {
+                    spike = (Math.random() < 0.9)? spike : 0;
+                }
+                return spike;
             });
         };
     };

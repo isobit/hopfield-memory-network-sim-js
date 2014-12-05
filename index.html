@@ -13,6 +13,7 @@
     <button v-on="click: startAutoPropagate()" v-class="bg-green: autoPropagate">Auto Propagate</button>
     <button v-on="click: memorize()" class="bg-blue">Memorize</button>
     <button v-on="click: clear()" class="bg-red">Clear</button>
+    <button v-on="click: stochastic = !stochastic" v-class="bg-green: stochastic">Stochastic</button>
     <table class="grid">
         <tr v-repeat="i : pixels.length">
             <td v-repeat="j : pixels.length">
@@ -31,7 +32,7 @@
                 </td>
             </tr>
         </table>
-        <button class="bg-red" v-on="click: unmemorize(m)">Remove</button>
+        <button class="bg-red" v-on="click: unmemorize(m)">Forget</button>
     </div>
 </section>
 </body>

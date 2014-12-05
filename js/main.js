@@ -7,7 +7,6 @@ require.config({
     waitSeconds: 15,
     paths: {
         "vue": "../components/vue/dist/vue",
-        //"math": "../components/mathjs/dist/math"
         "lodash": "../components/lodash/dist/lodash"
     },
     shim: {
@@ -17,26 +16,13 @@ require.config({
 define([
     "vue",
     "matrix",
-    "hopfield"
-], function(Vue, _, hopfield) {
-
-    Object.defineProperty( Array.prototype, 'eachConsecutive', {
-        value:function(n){
-            var copy = this.concat(), result = [];
-            while (copy.length) result.push( copy.splice(0,n) );
-            return result;
-        }
-    });
-
-    Object.defineProperty( Array.prototype, 'flatten', {
-        value:function(n){
-            return [].concat.apply([], this)
-        }
-    });
+    "hopfield",
+    "array"
+], function(Vue, _, hopfield, array) {
 
     var N = 30;
 
-    var memories = [
+    var initMemories = [
         [
             0, 0, 0,
             1, 0, 0,
@@ -53,15 +39,9 @@ define([
             0, 0, 0
         ]
     ];
-    var network = window.test = new hopfield.Network(memories, N);
+    var network = new hopfield.Network(initMemories, N);
 
-    var initPixels = [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0]
-    ];
-
-    var vue = window.vue = new Vue({
+    var vue = new Vue({
         el: 'body',
         data: {
             pixels: [
@@ -69,8 +49,9 @@ define([
                 [0, 0, 0],
                 [0, 0, 0]
             ],
-            memPixels: memories.map(function(e) {return e.eachConsecutive(3)}),
-            autoPropagate: false
+            memPixels: initMemories.map(function(e) {return e.eachConsecutive(3)}),
+            autoPropagate: false,
+            stochastic: false
         },
         methods: {
             togglePixel: function(i, j) {
@@ -87,15 +68,16 @@ define([
                 this.pixels = network.propagate(this.pixels.flatten()).slice(0, 9).eachConsecutive(3);
             },
             startAutoPropagate: function() {
-                if (!this.autoPropagate) {
-                    var self = this;
-                    this.autoPropagate = true;
-                    setTimeout(function() {
-                        self.autoPropagate = false;
-                    }, 5000)
-                } else {
-                    this.autoPropagate = false;
-                }
+                this.autoPropagate = !this.autoPropagate;
+                //if (!this.autoPropagate) {
+                //    var self = this;
+                //    this.autoPropagate = true;
+                //    setTimeout(function() {
+                //        self.autoPropagate = false;
+                //    }, 5000)
+                //} else {
+                //    this.autoPropagate = false;
+                //}
             },
             memorize: function() {
                 this.memPixels.push(this.pixels.concat());
@@ -103,6 +85,7 @@ define([
             },
             unmemorize: function(m) {
                 this.memPixels.splice(m, 1);
+                console.log(this.memPixels.length);
             }
         },
         watch: {
@@ -110,7 +93,10 @@ define([
                 var memories = val.map(function(e) {
                     return e.flatten();
                 });
-                network = window.test = new hopfield.Network(memories, N);
+                network = new hopfield.Network(memories, N);
+            },
+            stochastic: function(val, old) {
+                network.stochastic = val;
             }
         }
     });
