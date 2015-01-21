@@ -19,23 +19,30 @@ define([
     window._pad = _pad;
 
     hopfield.Network = function(memVecs, N) {
+
+        // Set up properties
+
         window.network = this;
         this.stochastic = false;
         var n = memVecs.length;
         this.n = n;
         this.N = N;
 
+        // Cleanse the memVecs
         var memSize = memVecs[0].length;
         memVecs.forEach(function(mem) {
             if (mem.length > memSize) memSize = mem.length;
         });
 
+        // Pad the memVecs
         var paddedMemVecs = this.Vs = memVecs.map(function(mem) {
             return _pad(mem, 0, N);
         });
 
+        // Initialize neurons
         var U = this.U = array.zeros(N);
 
+        // Train the network
         var T = this.T = matrix.fill(N, N, function(i, j) {
             var sum = 0;
             if (i != j) {
