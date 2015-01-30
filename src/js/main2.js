@@ -17,7 +17,7 @@ define([
     "vue",
     "matrix",
     "hopfield",
-    "array"
+    "lodashMixins"
 ], function(Vue, _, hopfield, array) {
 
     var N = 1000;
@@ -77,7 +77,7 @@ define([
             },
             clear: function() {
                 for (var i = 0; i < this.pixels.length; i++) {
-                    this.pixels.$set(i, array.zeros(memDim));
+                    this.pixels.$set(i, lodashMixins.zeros(memDim));
                 }
             },
             propagate: function() {

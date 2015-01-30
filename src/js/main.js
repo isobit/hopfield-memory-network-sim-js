@@ -2,22 +2,12 @@
  * @author Josh Glendenning
  */
 
-require.config({
-    baseUrl: "js",
-    waitSeconds: 15,
-    paths: {
-        "vue": "../components/vue/dist/vue",
-        "lodash": "../components/lodash/dist/lodash"
-    },
-    shim: {
-    }
-});
 
 define([
     "vue",
     "matrix",
     "hopfield",
-    "array"
+    "lodashMixins"
 ], function(Vue, _, hopfield, array) {
 
     var N = 100;

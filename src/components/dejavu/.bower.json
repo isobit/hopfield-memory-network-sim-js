@@ -1,0 +1,44 @@
+{
+  "name": "dejavu",
+  "version": "0.4.8",
+  "main": "dist/",
+  "dependencies": {
+    "mout": "^0.9.1"
+  },
+  "keywords": [
+    "oop",
+    "interface",
+    "class",
+    "abstract",
+    "final",
+    "inheritance"
+  ],
+  "homepage": "https://github.com/IndigoUnited/dejavu",
+  "authors": [
+    "IndigoUnited <hello@indigounited.com> (http://indigounited.com)"
+  ],
+  "description": "A set of object-oriented tools for JavaScript",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "0.4.8",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.4.8",
+    "commit": "5e2c98dd96429dbb6d60c576a2365f48a9937368"
+  },
+  "_source": "git://github.com/IndigoUnited/dejavu.git",
+  "_target": "~0.4.8",
+  "_originalSource": "dejavu",
+  "_direct": true
+}

@@ -1,0 +1,282 @@
+#!/usr/bin/env node
+
+/*jshint node:true*/
+
+'use strict';
+
+var cp = require('child_process'),
+    fs = require('fs'),
+    glob = require('glob'),
+    rimraf = require('rimraf'),
+    async = require('async'),
+    distDir = __dirname + '/../dist/',
+    mochaBin = __dirname + '/../node_modules/.bin/mocha',
+    exitCode = 0;
+
+function deleteEmptyFiles(dir) {
+    var files = glob.sync(dir + '**/*');
+    files.forEach(function (file) {
+        if (fs.statSync(file).isFile()) {
+            var content = fs.readFileSync(file);
+            if ((/^\s*$/).test(content.toString())) {
+                fs.unlinkSync(file);
+            }
+        }
+    });
+}
+
+// Clear directory
+rimraf.sync(distDir);
+
+// Do every single step in series
+// We use async to avoid too many nesting
+async.series({
+    'amd-strict': function (next) {
+        // Build amd strict
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'amd/strict/';
+
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            fs.unlinkSync(currentDistDir + 'build.txt');
+            fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+            next();
+        });
+    },
+    'amd-loose': function (next) {
+        // Build amd loose
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'amd/loose/';
+
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            fs.unlinkSync(currentDistDir + 'build.txt');
+            fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+            // Delete empty files
+            deleteEmptyFiles(currentDistDir);
+
+            next();
+        });
+    },
+    'node-strict': function (next) {
+        // Build node strict
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'node/strict/';
+
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true pragmas.node=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            fs.unlinkSync(currentDistDir + 'build.txt');
+            fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+            next();
+        });
+    },
+    'node-loose': function (next) {
+        // Build node loose
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'node/loose/';
+
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false pragmas.node=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            fs.unlinkSync(currentDistDir + 'build.txt');
+            fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+            // Delete empty files
+            deleteEmptyFiles(currentDistDir);
+
+            next();
+        });
+    },
+    'setup-node': function (next) {
+        // Foreach file in the node build add the amdefine header and jshint node:true
+        var files = glob.sync(distDir + 'node/**/*');
+        files.forEach(function (file) {
+            if (fs.statSync(file).isFile()) {
+                var content = fs.readFileSync(file);
+                content = '/*jshint node:true*/\n\nif (typeof define !== \'function\') {\n    var define = require(\'amdefine\')(module);\n}\n\n' + content;
+                fs.writeFileSync(file, content);
+            }
+        });
+
+        // Create node.js file
+        fs.writeFileSync(distDir + 'node/node.js', fs.readFileSync(__dirname + '/assets/node_main.js'));
+
+        next();
+    },
+    'regular-strict': function (next) {
+        // Create regular directories
+        fs.mkdirSync(distDir + 'regular');
+        fs.mkdirSync(distDir + 'regular/loose');
+        fs.mkdirSync(distDir + 'regular/strict');
+
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_regular.js',
+            currentDistDir = __dirname + '/../tmp/';
+
+        // Cleanup tmp folder
+        rimraf.sync(currentDistDir);
+
+        // Build regular strict
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            // Move concatenated file
+            fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
+
+            // Cleanup tmp folder
+            rimraf.sync(currentDistDir);
+
+            next();
+        });
+    },
+    'regular-loose': function (next) {
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_regular.js',
+            currentDistDir = __dirname + '/../tmp/';
+
+        // Cleanup tmp folder
+        rimraf.sync(currentDistDir);
+
+        // Build regular loose (normal)
+        cp.exec(command + ' dir="' + currentDistDir + '" optimize=none pragmas.strict=false', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            // Move concatenated file
+            fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.js');
+
+            // Cleanup tmp folder
+            rimraf.sync(currentDistDir);
+
+            // Build regular loose (minified)
+            cp.exec(command + ' dir="' + currentDistDir + '" optimize=uglify pragmas.strict=false', function (error, stdout, stderr) {
+                if (error) {
+                    return next(new Error(stderr + '\n' + stdout));
+                }
+
+                console.log(stdout);
+
+                // Move concatenated file
+                fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.min.js');
+
+                // Cleanup tmp folder
+                rimraf.sync(currentDistDir);
+
+                next();
+            });
+        });
+    },
+    'generate-optimized-tests': function (next) {
+        var testDir = __dirname + '/../test/';
+
+        async.forEach(['functional', 'verifications'], function (name, next) {
+            cp.exec('node "' + __dirname + '/../node_modules/dejavu-optimizer/bin/optimizer" < "' + testDir + 'specs/' + name + '.js" > "' + testDir + 'specs/' + name + '_optimized.js"', function (error, stdout, stderr) {
+                if (error !== null && stderr) {
+                    return next(new Error(stderr.toString()));
+                }
+
+                return next(error);
+            });
+        }, next);
+    },
+    'run-tests': function (next) {
+        // Change cwd to root dir
+        process.chdir(__dirname + '/..');
+
+        function runTest(opts, next) {
+            opts = opts || {};
+
+            var command = mochaBin + ' -R spec test/' + (opts.strict ? 'strict' : 'loose') + '.js' + (opts.node ? ' --node' : ''),
+                tests;
+
+            console.log('Running ' + (opts.node ? 'node' : 'amd') + ' ' + (opts.strict ? 'strict' : 'loose') + ' tests..');
+            console.log('-------------------------------------------------');
+
+            if (process.platform === 'win32') {
+                tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+            } else {
+                tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+            }
+            tests.on('exit', function (code) {
+                if (code) {
+                    process.exit(1);
+                }
+
+                next();
+            });
+        }
+
+        async.series({
+            'amd-strict': function (next) {
+                // Run amd strict tests
+                runTest({ strict: true}, next);
+            },
+            'amd-loose': function (next) {
+                // Run amd loose tests
+                runTest({}, next);
+            },
+            'node-strict': function (next) {
+                // Run node strict tests
+                runTest({ strict: true, node: true}, next);
+            },
+            'node-loose': function (next) {
+                // Run amd loose tests
+                runTest({ node: true}, next);
+            },
+            'node': function (next) {
+                // Run node tests
+                var command = mochaBin + ' -R spec test/node_specific.js',
+                    tests;
+
+                console.log('Running node_misc tests..');
+                console.log('-------------------------------------------------');
+
+                if (process.platform === 'win32') {
+                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+                } else {
+                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+                }
+                tests.on('exit', function (code) {
+                    if (code) {
+                        process.exit(1);
+                    }
+
+                    next();
+                });
+            }
+        }, next);
+    }
+}, function (err) {
+    if (err) {
+        throw err;
+    }
+
+    process.exit(exitCode);
+});
